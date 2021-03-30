@@ -1,0 +1,5 @@
+Stemp: %f, Temp: %f, err: %*f, eSum: %*f, d: %*f, Amb %f
+Ambient: %f, Sample: %f, SampleSink: %f
+Power: %f
+Comp = %f degC  HSink = %f degC  Amb = %f
+TC-CHC1-HC1: st A  s %f  m %f

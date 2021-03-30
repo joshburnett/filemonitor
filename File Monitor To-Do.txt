@@ -1,0 +1,52 @@
+File Monitor To-Do List
+
+x proper colors for each line (cycles through 8 colors)
+x legend (with user-configurable position)
+	x names for each data field (dependent on having a legend)
+x configurable window title
+
+x show file location in status bar
+x show file time stamp in status bar
+
+x auto-refresh option (actually monitor the file)
+
+x move 'live update' toggle, config, etc. buttons to toolbar
+
+x plot last N points / plot all points
+	x N field dependent on choice
+
+x button to reload file
+x X axis label
+x formatting help in Pattern Field tool tip
+x 'clear' button to clear parsed data and continue parsing
+
+x changing the search string clears the history
+	- What about storing X vector for each line?  What are the implications for exporting? (what was this?)
+
+x Give configuration dialog a proper name
+x fix legend positioning bug (changing legend position is buggy)
+x change formatting field to a combo box, with the drop-down items coming from a text file in the home directory
+
+x auto-generate format string from the current string (replace all numbers with '%f') (magic wand icon for button)
+- allow drag-and-drop of the log file to open it
+
+- auto-suggest format string from file analysis?
+	- check the first 100-1k lines, turn each one into a auto-generated string, pick the one with the largest number of entries
+	- do the same as above, but present the user with a dialog to choose between the top X options (maybe 5?)
+
+
+
+- plot Y vs X
+	- 'reset' search string
+
+- export data as CSV file
+
+- toggle autoscale Y axis
+
+- Include a size change as an update (sometimes Hyperterminal appends to a file without changing it's modification timestamp)
+- check that file has actually gotten *longer*.  Reset position to end if shorter.
+
+
+- save/load configuration?
+
+- use a plot manager to allow for signal selection, other toolbars, zooming, etc (way more advanced)

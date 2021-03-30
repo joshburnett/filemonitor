@@ -1,0 +1,23 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/cache.png</file>
+    <file>icons/editdelete.png</file>
+    <file>icons/agt_reload.png</file>
+    <file>icons/quick_restart.png</file>
+    <file>icons/openConfig.png</file>
+    <file>icons/agt_update_critical.png</file>
+    <file>icons/2uparrow.png</file>
+    <file>icons/openterm.png</file>
+    <file>icons/002_02.png</file>
+    <file>icons/advanced.png</file>
+    <file>icons/applications.png</file>
+    <file>icons/configure.png</file>
+    <file>icons/fileexport.png</file>
+    <file>icons/folder_open.png</file>
+    <file>icons/graph_icon.ico</file>
+    <file>icons/graph_icon.png</file>
+    <file>icons/editdelete.png</file>
+    <file>icons/player_pause.png</file>
+    <file>icons/player_play.png</file>
+  </qresource>
+</RCC>
