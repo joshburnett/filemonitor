@@ -43,7 +43,7 @@ x auto-generate format string from the current string (replace all numbers with 
 
 - toggle autoscale Y axis
 
-- Include a size change as an update (sometimes Hyperterminal appends to a file without changing it's modification timestamp)
+- Include a size change as an update (sometimes file are appended to without changing their modification timestamp)
 - check that file has actually gotten *longer*.  Reset position to end if shorter.
 
 
