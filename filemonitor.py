@@ -227,7 +227,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def update_config(self):
         if self.config.windowcomment == '':
-            self.ui.centralwidget.window().setProperty('windowTitle', 'File Monitor (v%s-r%i)' % (__version__, self.build_num))
+            self.ui.centralwidget.window().setProperty('windowTitle',
+                                                       'File Monitor (v%s-r%i)' % (__version__, self.build_num))
         else:
             self.ui.centralwidget.window().setProperty('windowTitle',
                                                        '%s -- File Monitor (v%s-r%i)' %
@@ -340,16 +341,17 @@ class MainWindow(QtWidgets.QMainWindow):
             curve.setData(self.x, ydata)
 
     @staticmethod
-    def modification_date(self, filename):
+    def modification_date(filename):
         t = os.path.getmtime(filename)
         return datetime.datetime.fromtimestamp(t)
 
     def on_clearButton_released(self):
-        self.resetGraph()
+        self.reset_graph()
 
     def on_searchText_textChanged(self):
-        self.resetGraph()
-    def resetGraph(self):
+        self.reset_graph()
+
+    def reset_graph(self):
         self.x = []
         self.y = []
         self.update_plot()
