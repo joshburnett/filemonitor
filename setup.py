@@ -27,7 +27,7 @@ build #,version,datetime
 '''
 
 from datetime import datetime
-from fileMonitor import __version__
+from filemonitor import __version__
 
 buildRecord = open('build_record.txt','a+')
 buildNum = int(buildRecord.readlines()[-1].split(',')[0]) + 1
@@ -52,7 +52,7 @@ options = {
 }
 
 executables = [
-    Executable('fileMonitor.py', base=base,
+    Executable('filemonitor.py', base=base,
                targetName   = 'File Monitor.exe',
                icon         = 'icons/graph_icon.ico',
                targetDir    = 'dist/File Monitor',

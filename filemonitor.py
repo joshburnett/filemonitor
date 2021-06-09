@@ -15,11 +15,12 @@ Releases:
 """
 
 __version__ = '0.1'
-##__debugging__ = True
+# __debugging__ = True
 
+import sys
+import os
 import re
 import datetime
-import sys, os
 from pathlib import Path
 
 from guidata.dataset.datatypes import DataSet, GetAttrProp, FuncProp
@@ -36,7 +37,7 @@ import pyqtgraph as pg
 import monkeypatch_pyqtgraph
 
 # GUI stuff.
-import graphWindow
+import graphwindow
 
 from scanf import scanf
 
@@ -78,7 +79,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self.ui = graphWindow.Ui_GraphWindow()
+        self.ui = graphwindow.Ui_GraphWindow()
 
         # bg_color = pg.mkColor("#EAEAF2") # from seaborn.rcmos.py ('darkgrid' style)
         pg.setConfigOptions(background='w', foreground='k')
@@ -86,10 +87,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.setupUi(self)
 
-        buildRecord = open('build_record.txt', 'r')
-        self.buildNum = int(buildRecord.readlines()[-1].split(',')[0])
-        buildRecord.close()
-        self.ui.centralwidget.window().setProperty('windowTitle','File Monitor (v%s-r%i)' % (__version__, self.buildNum))
+        build_record = open('build_record.txt', 'r')
+        self.build_num = int(build_record.readlines()[-1].split(',')[0])
+        build_record.close()
+        self.ui.centralwidget.window().setProperty('windowTitle',
+                                                   'File Monitor (v%s-r%i)' % (__version__, self.build_num))
 
         self.ui.plotWidget.showGrid(x=True, y=True, alpha=0.25)
 
@@ -113,7 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.file_size = None
 
         self.npoints = 0
-        self.plotallpoints = True
+        self.plot_all_points = True
         self.xlabel = ''
 
         self.replot = True
@@ -136,9 +138,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionReloadFile.setEnabled(False)
         self.ui.actionClearData.setEnabled(False)
 
-        self.fileUpdateRate = 1000 # millisecond interval for checking the data file
-        self.fileupdatetimer = QtCore.QTimer()
-        self.fileupdatetimer.timeout.connect(self.checkFileUpdate)
+        self.file_update_rate = 1000 # millisecond interval for checking the data file
+        self.file_update_timer = QtCore.QTimer()
+        self.file_update_timer.timeout.connect(self.check_file_update)
 
         # set up toolbar actions
         self.ui.actionTest1.triggered.connect(self.test)
@@ -169,10 +171,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_actionMonitorFileToggle_triggered(self, checked=None):
         if checked:
             print('Starting live updates')
-            self.fileupdatetimer.start(self.fileUpdateRate)
+            self.file_update_timer.start(self.file_update_rate)
         else:
             print('Stopping live updates')
-            self.fileupdatetimer.stop()
+            self.file_update_timer.stop()
 
     @QtCore.pyqtSlot(int)
     def on_actionReloadFile_triggered(self):
@@ -180,15 +182,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.clearData()
         self.filelocation = 0
         if self.filepath:
-            self.updateData()
+            self.update_data()
         self.replot = True
-        self.updatePlot()
+        self.update_plot()
 
     @QtCore.pyqtSlot(str)
     def on_actionClearData_triggered(self):
         print('on_actionClearData_triggered')
         self.clearData()
-        self.updatePlot()
+        self.update_plot()
 
     def clearData(self):
         self.y = []
@@ -202,18 +204,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionMonitorFileToggle.setEnabled(True)
         self.ui.actionReloadFile.setEnabled(True)
         self.ui.actionClearData.setEnabled(True)
-        self.updateConfig()
+        self.update_config()
 
-    def checkFileUpdate(self):
+    def check_file_update(self):
         mod_time_check = self.modification_date(self.filepath)
         file_size_check = os.path.getsize(self.filepath)
 
         if mod_time_check != self.mod_time or file_size_check != self.file_size:
             self.mod_time = mod_time_check
             self.file_size = file_size_check
-            self.updateData()
-            self.updatePlot()
-            self.updateStatusBar()
+            self.update_data()
+            self.update_plot()
+            self.update_status_bar()
 
     @QtCore.pyqtSlot()
     def on_actionEditConfiguration_triggered(self):
@@ -221,15 +223,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.actionMonitorFileToggle.setEnabled(True)
             self.ui.actionReloadFile.setEnabled(True)
             self.ui.actionClearData.setEnabled(True)
-            self.updateConfig()
+            self.update_config()
 
-    def updateConfig(self):
+    def update_config(self):
         if self.config.windowcomment == '':
-            self.ui.centralwidget.window().setProperty('windowTitle', 'File Monitor (v%s-r%i)' % (__version__, self.buildNum))
+            self.ui.centralwidget.window().setProperty('windowTitle', 'File Monitor (v%s-r%i)' % (__version__, self.build_num))
         else:
             self.ui.centralwidget.window().setProperty('windowTitle',
                                                        '%s -- File Monitor (v%s-r%i)' %
-                                                          (self.config.windowcomment, __version__, self.buildNum))
+                                                       (self.config.windowcomment, __version__, self.build_num))
 
         if self.filepath != self.config.filepath:
             # stop monitoring current file
@@ -239,7 +241,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.filepath = self.config.filepath
             self.filelocation = 0
             self.clearData()
-            self.updateData()
+            self.update_data()
             self.replot = True
 
             # start monitoring the new file
@@ -258,15 +260,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.showlegend = self.config.legend
             self.replot = True
 
-        self.updateStatusBar()
-        self.updatePlot()
+        self.update_status_bar()
+        self.update_plot()
 
-    def updateStatusBar(self):
+    def update_status_bar(self):
         self.file_sb.setText(self.filepath)
         if self.mod_time:
             self.timestamp_sb.setText(datetime.datetime.strftime(self.mod_time, 'Updated at: %Y-%m-%d, %I:%M:%S %p'))
 
-    def updateData(self):
+    def update_data(self):
         f = open(self.filepath, 'r')
         f.seek(self.filelocation)
         pattern = str(self.ui.searchText.currentText())
@@ -289,7 +291,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         f.close()
 
-    def updatePlot(self):
+    def update_plot(self):
         # update the data labels
         labels = self.config.datalabels.split(',')
         self.datalabels = []
@@ -337,6 +339,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for curve, ydata in zip(self.curves, self.y):
             curve.setData(self.x, ydata)
 
+    @staticmethod
     def modification_date(self, filename):
         t = os.path.getmtime(filename)
         return datetime.datetime.fromtimestamp(t)
@@ -346,17 +349,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_searchText_textChanged(self):
         self.resetGraph()
-
     def resetGraph(self):
         self.x = []
         self.y = []
-        self.updatePlot()
+        self.update_plot()
 
     def load_format_presets(self):
-        formatStringFile = open(os.path.join(get_main_dir(), 'format_strings.txt'))
-        for line in formatStringFile:
+        format_string_file = open(os.path.join(get_main_dir(), 'format_strings.txt'))
+        for line in format_string_file:
             self.ui.searchText.addItem(line.rstrip())
-        formatStringFile.close()
+        format_string_file.close()
         self.ui.searchText.setCurrentIndex(-1)
 
 
