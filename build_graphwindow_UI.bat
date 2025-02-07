@@ -1,2 +1,2 @@
 @echo off
-pyuic5 graphwindow.ui > graphwindow.py
+pyside6-uic graphwindow.ui > graphwindow.py

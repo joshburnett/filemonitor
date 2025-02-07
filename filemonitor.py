@@ -11,10 +11,14 @@ Version: 1.0
 Releases:
 0.1
     2021-03-30, J. Burnett
-    * Initial release
+    * Initial public release
+
+0.2
+    2025-02-06, J. Burnett
+    * Update Qt bindings to PySide6
 """
 
-__version__ = '0.1'
+__version__ = '0.2'
 # __debugging__ = True
 
 import sys
@@ -24,40 +28,35 @@ import datetime
 from pathlib import Path
 
 from guidata.dataset.datatypes import DataSet, GetAttrProp, FuncProp
-from guidata.dataset.dataitems import (FloatItem, IntItem, BoolItem, ChoiceItem,
-                                       MultipleChoiceItem, ImageChoiceItem, FilesOpenItem,
-                                       StringItem, TextItem, ColorItem, FileSaveItem,
-                                       FileOpenItem, DirectoryItem, FloatArrayItem,
-                                       DateItem, DateTimeItem)
+from guidata.dataset.dataitems import (BoolItem, StringItem, FileOpenItem)
 
 # use numpy and pyqtgraph for graphing
 from pyqtgraph.Qt import QtCore, QtWidgets
+from pyqtgraph.Qt.QtCore import Slot
 import pyqtgraph as pg
 # fix pg.graphicsItems.ViewBox.enableAutoRange method
-import monkeypatch_pyqtgraph
+# import monkeypatch_pyqtgraph
 
 # GUI stuff.
 import graphwindow
 
 from scanf import scanf
 
-pyqtSignal = QtCore.pyqtSignal
-
 
 # copied from seaborn.palettes.py
 SEABORN_PALETTES = dict(
-    deep=["#4C72B0", "#55A868", "#C44E52",
-          "#8172B2", "#CCB974", "#64B5CD"],
-    muted=["#4878CF", "#6ACC65", "#D65F5F",
-           "#B47CC7", "#C4AD66", "#77BEDB"],
-    pastel=["#92C6FF", "#97F0AA", "#FF9F9A",
-            "#D0BBFF", "#FFFEA3", "#B0E0E6"],
-    bright=["#003FFF", "#03ED3A", "#E8000B",
-            "#8A2BE2", "#FFC400", "#00D7FF"],
-    dark=["#001C7F", "#017517", "#8C0900",
-          "#7600A1", "#B8860B", "#006374"],
-    colorblind=["#0072B2", "#009E73", "#D55E00",
-                "#CC79A7", "#F0E442", "#56B4E9"]
+    deep=['#4C72B0', '#55A868', '#C44E52',
+          '#8172B2', '#CCB974', '#64B5CD'],
+    muted=['#4878CF', '#6ACC65', '#D65F5F',
+           '#B47CC7', '#C4AD66', '#77BEDB'],
+    pastel=['#92C6FF', '#97F0AA', '#FF9F9A',
+            '#D0BBFF', '#FFFEA3', '#B0E0E6'],
+    bright=['#003FFF', '#03ED3A', '#E8000B',
+            '#8A2BE2', '#FFC400', '#00D7FF'],
+    dark=['#001C7F', '#017517', '#8C0900',
+          '#7600A1', '#B8860B', '#006374'],
+    colorblind=['#0072B2', '#009E73', '#D55E00',
+                '#CC79A7', '#F0E442', '#56B4E9']
     )
 
 
@@ -66,7 +65,7 @@ SEABORN_PALETTES = dict(
 # so some extra GUI items are made visible.  If we're running from the executable, those
 # GUI items get hidden.
 def main_is_frozen():
-    return hasattr(sys, "frozen")  # new py2exe
+    return hasattr(sys, 'frozen')  # new py2exe
 
 
 def get_main_dir():
@@ -76,12 +75,11 @@ def get_main_dir():
 
 
 class MainWindow(QtWidgets.QMainWindow):
-
-    def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, /, parent=None):
+        super().__init__(parent)
         self.ui = graphwindow.Ui_GraphWindow()
 
-        # bg_color = pg.mkColor("#EAEAF2") # from seaborn.rcmos.py ('darkgrid' style)
+        # bg_color = pg.mkColor('#EAEAF2') # from seaborn.rcmos.py ('darkgrid' style)
         pg.setConfigOptions(background='w', foreground='k')
         pg.setConfigOptions(antialias=True)
 
@@ -127,7 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusBar().addWidget(self.file_sb, 1)
 
         self.timestamp_sb = QtWidgets.QLabel('  Updated at: 0000-00-00, 00:00:00 AM  ', self.statusBar())
-        self.timestamp_sb.setAlignment(QtCore.Qt.AlignCenter)
+        self.timestamp_sb.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.timestamp_sb.setMinimumSize(self.timestamp_sb.sizeHint())
         self.timestamp_sb.setText('No file loaded')
         self.statusBar().addWidget(self.timestamp_sb)
@@ -158,16 +156,16 @@ class MainWindow(QtWidgets.QMainWindow):
         pdb.set_trace()
         print('test function 2')
 
-    @QtCore.pyqtSlot(bool)
+    @Slot(bool)
     def on_autoFormatButton_clicked(self, checked=None):
         print('auto formatting')
         s = str(self.ui.searchText.currentText())
         if s:
-            s = re.sub('([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)', r'%f', s)  # replace float with %f
-            s = re.sub('\s+', ' ', s)  # collapse white space
+            s = re.sub(r'([-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?)', r'%f', s)  # replace float with %f
+            s = re.sub(r'\s+', ' ', s)  # collapse white space
             self.ui.searchText.setEditText(s)
 
-    @QtCore.pyqtSlot(bool)
+    @Slot(bool)
     def on_actionMonitorFileToggle_triggered(self, checked=None):
         if checked:
             print('Starting live updates')
@@ -176,7 +174,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print('Stopping live updates')
             self.file_update_timer.stop()
 
-    @QtCore.pyqtSlot(int)
+    @Slot(int)
     def on_actionReloadFile_triggered(self):
         print('on_actionReloadFile_triggered')
         self.clearData()
@@ -186,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.replot = True
         self.update_plot()
 
-    @QtCore.pyqtSlot(str)
+    @Slot(str)
     def on_actionClearData_triggered(self):
         print('on_actionClearData_triggered')
         self.clearData()
@@ -195,7 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def clearData(self):
         self.y = []
 
-    @QtCore.pyqtSlot()
+    @Slot()
     def on_actionLoadPresetConfig_triggered(self):
         print('Loading default file')
         self.config.filepath = os.path.join(get_main_dir(),'sample_data.log')
@@ -217,7 +215,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.update_plot()
             self.update_status_bar()
 
-    @QtCore.pyqtSlot()
+    @Slot()
     def on_actionEditConfiguration_triggered(self):
         if self.config.edit(size=(400, 170)):
             self.ui.actionMonitorFileToggle.setEnabled(True)
@@ -367,26 +365,25 @@ class MainWindow(QtWidgets.QMainWindow):
 class GraphConfig(DataSet):
     """File Monitor Configuration"""
 
-    filepath = FileOpenItem("Open file", ("log", "txt", "*"))
+    filepath = FileOpenItem('Open file', ('log', 'txt', '*'))
 
     windowcomment = StringItem('Window Comment', '',
                                help='Identifying string to add to the window title')
 
-    _prop = GetAttrProp("legend")
-    legend = BoolItem("Display legend", default=False).set_prop("display", store=_prop)
+    _prop = GetAttrProp('legend')
+    legend = BoolItem('Display legend', default=False).set_prop('display', store=_prop)
 
-    datalabels = StringItem("Data Labels", '',
-                        help='Comma-separated list of labels for the parsed data').set_prop("display",
-                            active=FuncProp(_prop, lambda x: x))
+    datalabels = (StringItem('Data Labels', '', help='Comma-separated list of labels for the parsed data')
+                  .set_prop('display', active=FuncProp(_prop, lambda x: x)))
 
-    xlabel = StringItem("X Axis Label","Data Point Index",
+    xlabel = StringItem('X Axis Label', 'Data Point Index',
                         help='Label for the Horizontal Axis')
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = QtWidgets.QApplication(sys.argv)
 
     mainwindow = MainWindow()
 
     mainwindow.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
